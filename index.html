@@ -1617,6 +1617,7 @@
       errDisabled: "تم إيقاف هذا الحساب. تواصل مع المسؤول.",
       errSetup: "خدمة تسجيل الدخول غير مفعّلة بعد في Firebase. تواصل مع المسؤول.",
       errNoAccess: "هذا الحساب غير مصرّح له بالدخول أو تم إيقافه. تواصل مع المسؤول.",
+      errRules: "تم التحقق من كلمة المرور، لكن قواعد Firestore الحالية تمنع قراءة حسابك. انشر ملف firestore.rules من Firebase Console ثم أعد المحاولة.",
       errGeneric: "حدث خطأ غير متوقع. حاول مرة أخرى.",
       errLoad: "تعذّر تحميل خدمة تسجيل الدخول. تأكد من الإنترنت ثم حدّث الصفحة.",
       rights: "© {y} تايم كود قروب — جميع الحقوق محفوظة",
@@ -1666,6 +1667,7 @@
       errDisabled: "This account has been disabled. Contact your administrator.",
       errSetup: "Sign-in isn't enabled in Firebase yet. Contact your administrator.",
       errNoAccess: "This account isn't authorised or has been suspended. Contact your administrator.",
+      errRules: "Your password is correct, but the current Firestore rules block reading your account. Publish firestore.rules in the Firebase Console, then try again.",
       errGeneric: "Something went wrong. Please try again.",
       errLoad: "Couldn't load the sign-in service. Check your connection and refresh.",
       rights: "© {y} Time Code Group — All rights reserved",
@@ -1887,7 +1889,9 @@
       var emp = $('qEmployee');
       if(emp && !emp.value) emp.value = p.name || '';
     }).catch(function(err){
-      deniedMsg = (err && err.code === 'permission-denied') ? t('errNoAccess') : errMsg(err && err.code);
+      console.error('[auth] profile load failed', err);
+      var code = err && err.code;
+      deniedMsg = code === 'permission-denied' ? t(isOwnerEmail(user.email) ? 'errRules' : 'errNoAccess') : errMsg(code);
       auth.signOut();
     });
   });
